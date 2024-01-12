@@ -1,177 +1,67 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <style>
-    #video {
-        border: 2px solid black;
-        width: 320px;
-        height: 240px;
-    }
-    #photo {
-        border: 2px solid black;
-        width: 320px;
-        height: 240px;
-    }
-    #canvas {
-        display: none;
-    }
-    .camera {
-        width: 340px;
-        display: inline-block;
-    }
-    .output {
-        width: 340px;
-        padding-top: 20px;
-        display: inline-block;
-    }
-    #startbutton {
-        display: block;
-        position: relative;
-        margin-left: auto;
-        margin-right: auto;
-        bottom: -5px;
-        padding: 15px;
-        background-color: #8481da;
-        border: 1px solid rgba(0, 0, 0, 0.7);
-        font-size: 14px;
-        color: rgba(255, 255, 255, 1.0);
-        cursor: pointer;
-    }
-    #downloadbutton {
-        display: block;
-        position: relative;
-        margin-left: auto;
-        margin-right: auto;
-        bottom: -10px;
-        padding: 18px;
-        background-color: #4caf50;
-        border: 1px solid rgba(0, 0, 0, 0.7);
-        font-size: 14px;
-        color: rgba(255, 255, 255, 1.0);
-        cursor: pointer;
-    }
-    .contentarea {
-        font-size: 16px;
-        font-family: Arial;
-        text-align: center;
-    }
-    </style>
-    <title>Web Cam App</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        .upload-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            display: inline-block;
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        #uploadBtn {
+            display: none;
+        }
+
+        #submitBtn {
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="contentarea">
-        <h1>
-            ONLINE WEB CAM 
-        </h1>
-        <div class="camera">
-            <video id="video">Video stream not available.</video>
-        </div>
-        <div><button id="startbutton">Take photo</button><button id="downloadbutton">Download</button></div>
-        <canvas id="canvas"></canvas>
-        <div class="output">
-            <img id="photo" alt="The screen capture will appear in this box.">
-        </div>
+    <div class="upload-container">
+        <form id="uploadForm">
+            <input type="file" id="fileInput" name="fileInput" accept=".txt, .pdf, .doc, .docx">
+            <label for="fileInput" id="uploadBtn">Choose File</label>
+            <div id="fileName"></div>
+            <button type="button" id="submitBtn" onclick="sendEmail()">Submit</button>
+        </form>
     </div>
 
     <script>
-    (function() {
+        document.getElementById('fileInput').addEventListener('change', function() {
+            document.getElementById('fileName').innerHTML = this.value.split("\\").pop();
+        });
 
-        var width = 320;
-        var height = 0;
-
-        var streaming = false;
-
-        var video = null;
-        var canvas = null;
-        var photo = null;
-        var startbutton = null;
-        var downloadbutton = null;
-
-        function startup() {
-            video = document.getElementById('video');
-            canvas = document.getElementById('canvas');
-            photo = document.getElementById('photo');
-            startbutton = document.getElementById('startbutton');
-            downloadbutton = document.getElementById('downloadbutton');
-
-            navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.play();
-                })
-                .catch(function(err) {
-                    console.log("An error occurred: " + err);
-                });
-
-            video.addEventListener('canplay', function(ev) {
-                if (!streaming) {
-                    height = video.videoHeight / (video.videoWidth / width);
-
-                    if (isNaN(height)) {
-                        height = width / (4 / 3);
-                    }
-
-                    video.setAttribute('width', width);
-                    video.setAttribute('height', height);
-                    canvas.setAttribute('width', width);
-                    canvas.setAttribute('height', height);
-                    streaming = true;
-                }
-            }, false);
-
-            startbutton.addEventListener('click', function(ev) {
-        // Delay photo capture by 3 seconds
-        setTimeout(function () {
-            takepicture();
-        }, 3000);
-
-        ev.preventDefault();
-    }, false);
-            downloadbutton.addEventListener('click', function() {
-                downloadPhoto();
-            });
-
-            clearphoto();
+        function sendEmail() {
+            // You can add logic here to send the file to the specified Gmail address using a server-side script.
+            // Due to security constraints, sending emails directly from the client-side is not recommended.
+            alert('File submitted successfully!');
         }
-
-        function clearphoto() {
-            var context = canvas.getContext('2d');
-            context.fillStyle = "#AAA";
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            var data = canvas.toDataURL('image/png');
-            photo.setAttribute('src', data);
-        }
-
-        function takepicture() {
-            var context = canvas.getContext('2d');
-            if (width && height) {
-                canvas.width = width;
-                canvas.height = height;
-                context.drawImage(video, 0, 0, width, height);
-
-                var data = canvas.toDataURL('image/png');
-                photo.setAttribute('src', data);
-            } else {
-                clearphoto();
-            }
-        }
-
-        function downloadPhoto() {
-            var dataUrl = canvas.toDataURL('image/png');
-
-            var a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = 'webcam_photo.png';
-
-            a.click();
-        }
-
-        window.addEventListener('load', startup, false);
-    })();
     </script>
 </body>
 </html>
