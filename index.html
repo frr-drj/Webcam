@@ -28,7 +28,7 @@
             cursor: pointer;
         }
 
-        #uploadBtn {
+        #fileInput {
             display: none;
         }
 
@@ -45,8 +45,8 @@
 <body>
     <div class="upload-container">
         <form id="uploadForm">
+            <label for="fileInput">Choose File</label>
             <input type="file" id="fileInput" name="fileInput" accept=".txt, .pdf, .doc, .docx">
-            <label for="fileInput" id="uploadBtn">Choose File</label>
             <div id="fileName"></div>
             <button type="button" id="submitBtn" onclick="sendEmail()">Submit</button>
         </form>
